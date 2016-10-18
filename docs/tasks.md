@@ -7,17 +7,17 @@ Arsalan:
 = 10 pages
 
 Adham/Miguel: 
-Hardware design & Software 25 pages
-Each qualification: 1 pages each
+-Hardware design & Software 25 pages
+-Each qualification: 1 pages each
 
 Tobi:
-Literature Review: 4 pages 
-Budget: 1 page
-URDF 2pages
-Each qualification: 1 pages
+-Literature Review: 4 pages 
+-Budget: 1 page
+-URDF 2pages
+-Each qualification: 1 pages
 
 Anyone:
-Milestones: 1 page
+-Milestones: 1 page
 
 
 
