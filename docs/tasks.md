@@ -1,10 +1,11 @@
 Arsalan:
--	Intro 	3 pages 
--	System requirements	 1 page
--	Risk management 3 pages
--	Each qualification:  pages
--	Servo motors 3 pages
-= 10 pages
+-	Intro 
+-	System requirements	
+-	Risk management
+- Budget
+-	Each qualification: 1 pages
+-	Conclusion
+
 
 Adham/Miguel: 
 -Hardware design & Software 25 pages
