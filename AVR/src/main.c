@@ -1,7 +1,11 @@
 #include <avr/io.h>
 #include <util/delay.h>
+#include "Arduino.h"
+#include "rosnode.h"
 
 int main(void) {
+
+        pinMode(13, OUTPUT);
 
 	// Pin PD3 will be our output (pin 3 on arduino)
 	DDRD |= _BV(PD3);
