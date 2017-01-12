@@ -20,16 +20,3 @@ void publish_data(int64_t data)
 
     node.spinOnce(); // update ROS
 }
-
-#if 0
-int main(void)
-{
-    init_node();
-    while(1) {
-        delay(3000);
-        publish_data(501);
-        if (serialEventRun) serialEventRun();
-    }
-    return 0;
-}
-#endif
