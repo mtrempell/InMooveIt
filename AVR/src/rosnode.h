@@ -7,8 +7,9 @@
 extern "C" {
 #endif
 
-void init_node(void);
-void publish_data(int64_t data);
+void node_init(void);
+void node_publish_data(int32_t data);
+int32_t node_get_requested_position(void);
 
 #ifdef __cplusplus
 }

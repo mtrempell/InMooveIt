@@ -2,13 +2,14 @@
 #include <util/delay.h>
 #include <Arduino.h>
 #include "rosnode.h"
+#include "util.h"
 
 #define MOTOR_MIN 50
 #define MOTOR_MAX 950
 #define ANALOG_READ_MIN 0
 #define ANALOG_READ_MAX 1023
 
-void arduino_init(void)
+static void arduino_init(void)
 {
     init();
     #if defined(USBCON)
@@ -16,15 +17,10 @@ void arduino_init(void)
     #endif
 }
 
-long map(long x, long in_min, long in_max, long out_min, long out_max)
-{
-    return (x - in_min)*(out_max - out_min)/(in_max - in_min) + out_min;
-}
-
 int main(void)
 {
     arduino_init();
-    init_node();
+    node_init();
 
     int pot = A0;
     pinMode(pot, INPUT);
@@ -54,13 +50,16 @@ int main(void)
     // flip direction back in forth and delay?
     DDRB |= _BV(PB5);
 
-    int64_t pot_position;
+    int32_t pot_value;
+    int32_t requested_position;
     while (1) {
-        pot_position = analogRead(pot);
-        pot_position = map(pot_position, ANALOG_READ_MIN, ANALOG_READ_MAX,
-                           MOTOR_MIN, MOTOR_MAX);
-        publish_data(pot_position);
+        pot_value = analogRead(pot);
+        pot_value = map(pot_value, ANALOG_READ_MIN, ANALOG_READ_MAX,
+                        MOTOR_MIN, MOTOR_MAX);
+        node_publish_data(pot_value);
         _delay_ms(3000);
         PORTB ^= _BV(PORTB5); // flip the bit
+
+        requested_position = node_get_requested_position();
     }
 }
