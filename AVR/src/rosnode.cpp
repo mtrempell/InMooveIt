@@ -8,7 +8,7 @@ ros::NodeHandle node;
 std_msgs::Int32 position_feedback;
 ros::Publisher feedback("feedback", &position_feedback);
 
-static int32_t position = 0;
+static int32_t position = 200;
 static void requested_position_cb(const std_msgs::Int32& cmd)
 {
     position = cmd.data;
