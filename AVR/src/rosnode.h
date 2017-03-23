@@ -8,8 +8,8 @@ extern "C" {
 #endif
 
 void node_init(void);
-void node_publish_data(int32_t data);
-int32_t node_get_requested_position(void);
+void node_publish_data(const int16_t *data);
+const int16_t *node_get_requested_positions(void);
 
 #ifdef __cplusplus
 }
