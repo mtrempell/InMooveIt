@@ -1,5 +1,8 @@
 #include <stdlib.h>
+#include <Arduino.h>
 #include "joints.h"
+
+
 
 void joint_set_pwm_forward(struct joint_info *joint)
 {
@@ -9,4 +12,46 @@ void joint_set_pwm_forward(struct joint_info *joint)
 void joint_set_pwm_reverse(struct joint_info *joint)
 {
     joint->active_pwm_pin = joint->pwm_pins[1];
+}
+
+
+#define ERR_LEEWAY_DEFAULT 10
+#define MIN_POS_DEFAULT 300
+#define MAX_POS_DEFAULT 500
+
+void set_shoulder_joint_info(struct joint_info *joint)
+{
+    joint->pwm_pins[0] = 5;
+    joint->pwm_pins[1] = 6;
+    joint->pot = A0;
+    joint->max_pos = 385;
+    joint->min_pos = 465;
+}
+
+// returns pre-defined joint infos
+// make SURE that these match NUM_OF_JOINTS
+void get_joint_info(struct joint_info *joints)
+{
+
+    // set default values for all joints
+    for (size_t i = 0; i < NUM_OF_JOINTS; ++i) {
+        joints[i].min_pos = MIN_POS_DEFAULT;
+        joints[i].max_pos = MAX_POS_DEFAULT;
+        joints[i].err_leeway = ERR_LEEWAY_DEFAULT;
+    }
+
+    // JOINT 1
+    set_shoulder_joint_info(&joints[0]);
+
+#if 0 
+    // JOINT 2
+    joints[1].pwm_pins[0] = 9;
+    joints[1].pwm_pins[1] = 10;
+    joints[1].pot = A1;
+#endif
+
+    // set all active pins to FORWARD
+    for (size_t i = 0; i < NUM_OF_JOINTS; i++) {
+        joints[i].active_pwm_pin = joints[i].pwm_pins[0];
+    }
 }

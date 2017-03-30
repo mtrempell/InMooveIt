@@ -19,7 +19,7 @@ static void requested_position_cb(const std_msgs::Int16MultiArray& array)
     }
 }
 
-const int16_t* node_get_requested_positions(void)
+int16_t* node_get_requested_positions(void)
 {
     return positions;
 }
@@ -34,12 +34,22 @@ void node_init(void)
     position_feedback.data_length = NUM_OF_JOINTS;
 }
 
-void node_publish_data(const int16_t *data)
+
+// waits for a rosserial connection to be establisher
+void node_wait_for_connection(void)
 {
-    int16_t data_copy[NUM_OF_JOINTS];
-    memcpy(data_copy, data, sizeof(*data)*NUM_OF_JOINTS);
-    position_feedback.data = data_copy;
+    while(!node.connected()) {
+        node.spinOnce();
+    }
+
+    node.loginfo("Rosserial connection established");
+}
+
+void node_publish_data(int16_t *data)
+{
+    position_feedback.data = data;
     feedback.publish(&position_feedback);
 
     node.spinOnce(); // update ROS
 }
+

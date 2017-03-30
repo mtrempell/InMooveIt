@@ -8,8 +8,8 @@
 #include "pid.h"
 
 // TODO: these should be moved to joints.h
-#define MOTOR_MIN 200 // FIXME
-#define MOTOR_MAX 700
+#define MOTOR_MIN 300 // FIXME
+#define MOTOR_MAX 500
 #define ANALOG_READ_MIN 0
 #define ANALOG_READ_MAX 1023
 
@@ -36,13 +36,31 @@ void read_pots(int16_t *current_positions, const struct joint_info *joints,
     }
 }
 
-void run_pid(const int16_t *requested_positions,
-             const int16_t *current_positions, pid_state_t *pid_states,
-             struct joint_info *joints, int num_joints)
+// limit the requested positon to the maximum position that the joint
+// can safely reach.
+void limit_requested_positions(int16_t *requested_positions,
+                               const struct joint_info *joints,
+                               size_t num_joints)
 {
+    for (size_t i = 0; i < num_joints; ++i) {
+        if (requested_positions[i] > joints[i].max_pos) {
+            requested_positions[i] = joints[i].max_pos;
+        } else if (requested_positions[i] < joints[i].min_pos) {
+            requested_positions[i] = joints[i].min_pos;
+        }
+    }
+}
+
+void run_pid(int16_t *requested_positions, const int16_t *current_positions,
+             pid_state_t *pid_states, struct joint_info *joints,
+             size_t num_joints)
+{
+    limit_requested_positions(requested_positions, joints, num_joints);
+
     int16_t position_err;
     double motor_speed;
     for (size_t i = 0; i < num_joints; ++i) {
+
         position_err = abs(requested_positions[i] - current_positions[i]);
 
         analogWrite(joints[i].active_pwm_pin, 0); // shut down current PWM signal
@@ -68,15 +86,7 @@ int main(void)
 
     // initialize inputs/outputs FIXME this needs to be generalized to more joints
     struct joint_info joints[NUM_OF_JOINTS];
-    joints[0].pwm_pins[0] = 5; joints[0].pwm_pins[1] = 6;
-    joints[0].pot = A0;
-    for (size_t i = 0; i < NUM_OF_JOINTS; ++i) {
-        pinMode(joints[i].pot, INPUT);
-        pinMode(joints[i].pwm_pins[0], OUTPUT);
-        pinMode(joints[i].pwm_pins[1], OUTPUT);
-        joints[i].active_pwm_pin = 0;
-        // TODO: do the rest and maybe move this to a separate function
-    }
+    get_joint_info(joints);
 
     pid_state_t pid_states[NUM_OF_JOINTS];
     for (size_t i = 0; i < NUM_OF_JOINTS; ++i) {
@@ -84,7 +94,7 @@ int main(void)
     }
 
     int16_t current_positions[NUM_OF_JOINTS];
-    const int16_t *requested_positions;
+    int16_t *requested_positions;
     while (1) {
         read_pots(current_positions, joints, NUM_OF_JOINTS);
         node_publish_data(current_positions);
