@@ -42,8 +42,19 @@ void node_wait_for_connection(void)
         node.spinOnce();
     }
 
-    node.loginfo("Rosserial connection established");
+    node.loginfo("ARDUINO: Rosserial connection established");
 }
+
+char logbuff[150];
+void node_log_info(const char *fmt, ...)
+{
+    va_list arg;
+    va_start(arg, fmt);
+    vsprintf(logbuff, fmt, arg);
+    va_end(arg);
+    node.loginfo(logbuff);
+}
+void node_log_err(const char *msg) {node.logerror(msg);}
 
 void node_publish_data(int16_t *data)
 {

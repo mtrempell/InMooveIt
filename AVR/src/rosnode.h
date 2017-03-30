@@ -10,6 +10,10 @@ extern "C" {
 void node_init(void);
 void node_publish_data(int16_t *data);
 int16_t *node_get_requested_positions(void);
+void node_wait_for_connection(void);
+
+void node_log_info(const char *fmt, ...);
+void node_log_err(const char *msg);
 
 #ifdef __cplusplus
 }

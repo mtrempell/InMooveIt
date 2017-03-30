@@ -22,7 +22,6 @@ static void arduino_init(void)
     #if defined(USBCON)
         USB.attach();
     #endif
-    //Serial.begin(57600);
 }
 
 void read_pots(int16_t *current_positions, const struct joint_info *joints,
@@ -31,8 +30,8 @@ void read_pots(int16_t *current_positions, const struct joint_info *joints,
     for (size_t i = 0; i < num_joints; ++i) {
         current_positions[i] = analogRead(joints[i].pot);
         // TODO: these may vary for every joint
-        current_positions[i] = map(current_positions[i], ANALOG_READ_MIN,
-                                   ANALOG_READ_MAX, MOTOR_MIN, MOTOR_MAX);
+        //current_positions[i] = map(current_positions[i], ANALOG_READ_MIN,
+        //                           ANALOG_READ_MAX, MOTOR_MIN, MOTOR_MAX);
     }
 }
 
@@ -45,6 +44,8 @@ void limit_requested_positions(int16_t *requested_positions,
     for (size_t i = 0; i < num_joints; ++i) {
         if (requested_positions[i] > joints[i].max_pos) {
             requested_positions[i] = joints[i].max_pos;
+            node_log_info("limiting max position to %d for joint '%s'",
+                          joints[i].max_pos, joints[i].name);
         } else if (requested_positions[i] < joints[i].min_pos) {
             requested_positions[i] = joints[i].min_pos;
         }
@@ -62,7 +63,7 @@ void run_pid(int16_t *requested_positions, const int16_t *current_positions,
     for (size_t i = 0; i < num_joints; ++i) {
 
         position_err = abs(requested_positions[i] - current_positions[i]);
-
+        node_log_info("position err: %d", position_err);
         analogWrite(joints[i].active_pwm_pin, 0); // shut down current PWM signal
         if (current_positions[i] > requested_positions[i]) {
             joint_set_pwm_reverse(&joints[i]);
@@ -73,6 +74,7 @@ void run_pid(int16_t *requested_positions, const int16_t *current_positions,
         if (position_err > ERROR_LEEWAY) {
             motor_speed = update_pid(&pid_states[i], position_err,
                                      current_positions[i]);
+            if (motor_speed > 255) motor_speed = 255;
             analogWrite(joints[i].active_pwm_pin, motor_speed);
         }
 
@@ -83,14 +85,14 @@ int main(void)
 {
     arduino_init();
     node_init();
+    node_wait_for_connection();
 
-    // initialize inputs/outputs FIXME this needs to be generalized to more joints
     struct joint_info joints[NUM_OF_JOINTS];
     get_joint_info(joints);
 
     pid_state_t pid_states[NUM_OF_JOINTS];
     for (size_t i = 0; i < NUM_OF_JOINTS; ++i) {
-        pid_init(&pid_states[i], 1, 100, 0.01, 0, 3000);
+        pid_init(&pid_states[i], joints[i].kp, joints[i].ki, joints[i].kd, 0, 3000);
     }
 
     int16_t current_positions[NUM_OF_JOINTS];
