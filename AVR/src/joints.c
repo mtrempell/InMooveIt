@@ -30,6 +30,8 @@ void set_elbow_joint_info(struct joint_info *joint)
     joint->min_pos = 430;
     joint->max_pos = 855;
     joint->name = "elbow";
+
+    joint->default_position = 600;
 }
 
 void set_shoulder_rotate_joint_info(struct joint_info *joint)
@@ -38,12 +40,15 @@ void set_shoulder_rotate_joint_info(struct joint_info *joint)
     joint->min_pos = 30;
     joint->max_pos = 885;
 
+    joint->default_position = 500;
 }
 
 void set_shoulder_vertical_joint_info(struct joint_info *joint)
 {
     joint->min_pos = 150;
     joint->max_pos = 700;
+
+    joint->default_position = 425;
 }
 
 // returns pre-defined joint infos

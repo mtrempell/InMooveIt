@@ -2,12 +2,14 @@
 #define ROS_NODE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void node_init(void);
+bool received_initial_positions(void);
 void node_publish_data(int16_t *data);
 int16_t *node_get_requested_positions(void);
 void node_wait_for_connection(void);

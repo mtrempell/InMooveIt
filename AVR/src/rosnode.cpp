@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <ros.h>
+#include <stdbool.h>
 #include <std_msgs/MultiArrayLayout.h>
 #include <std_msgs/MultiArrayDimension.h>
 #include <std_msgs/Int16MultiArray.h>
@@ -12,8 +13,10 @@ std_msgs::Int16MultiArray position_feedback;
 ros::Publisher feedback("feedback", &position_feedback);
 
 static int16_t positions[NUM_OF_JOINTS] = {};
+static bool initial_positions_received = false;
 static void requested_position_cb(const std_msgs::Int16MultiArray& array)
 {
+    initial_positions_received = true;
     for(size_t i = 0; i < array.data_length && i < NUM_OF_JOINTS; ++i) {
         positions[i] = array.data[i];
     }
@@ -22,6 +25,11 @@ static void requested_position_cb(const std_msgs::Int16MultiArray& array)
 int16_t* node_get_requested_positions(void)
 {
     return positions;
+}
+
+bool received_initial_positions(void)
+{
+    return initial_positions_received;
 }
 
 ros::Subscriber<std_msgs::Int16MultiArray> requested_position(
@@ -45,7 +53,7 @@ void node_wait_for_connection(void)
     node.loginfo("ARDUINO: Rosserial connection established");
 }
 
-char logbuff[150];
+static char logbuff[150];
 
 void node_log_info(const char *fmt, ...)
 {

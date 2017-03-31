@@ -15,6 +15,8 @@
 
 #define ERROR_LEEWAY 10
 
+#define MAX_PWM_VAL 255
+
 
 static void arduino_init(void)
 {
@@ -74,7 +76,7 @@ void run_pid(int16_t *requested_positions, const int16_t *current_positions,
         if (position_err > ERROR_LEEWAY) {
             motor_speed = update_pid(&pid_states[i], position_err,
                                      current_positions[i]);
-            if (motor_speed > 255) motor_speed = 255;
+            if (motor_speed > MAX_PWM_VAL) motor_speed = MAX_PWM_VAL;
             analogWrite(joints[i].active_pwm_pin, motor_speed);
         }
 
@@ -101,6 +103,8 @@ int main(void)
         read_pots(current_positions, joints, NUM_OF_JOINTS);
         node_publish_data(current_positions);
 
+        if (!received_initial_positions()) continue;
+        node_log_info("we good");
         requested_positions = node_get_requested_positions();
         run_pid(requested_positions, current_positions, pid_states, joints,
                 NUM_OF_JOINTS);
