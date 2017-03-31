@@ -13,7 +13,7 @@ int16_t *node_get_requested_positions(void);
 void node_wait_for_connection(void);
 
 void node_log_info(const char *fmt, ...);
-void node_log_err(const char *msg);
+void node_log_err(const char *fmt, ...);
 
 #ifdef __cplusplus
 }

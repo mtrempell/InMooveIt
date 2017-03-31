@@ -43,7 +43,7 @@ void set_shoulder_rotate_joint_info(struct joint_info *joint)
 void set_shoulder_vertical_joint_info(struct joint_info *joint)
 {
     joint->min_pos = 150;
-    joint->max_pos;
+    joint->max_pos = 700;
 }
 
 // returns pre-defined joint infos
