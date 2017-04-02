@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define NUM_OF_JOINTS 1
+#define NUM_OF_JOINTS 2
 
 struct joint_info {
     int pwm_pins[2]; // forward pin == pwm_pins[0], reverse == pwm_pins[1]
@@ -14,8 +14,10 @@ struct joint_info {
     int min_pos; // minimum pot value
     int err_leeway;
     int default_position;
+    int max_angle; // FIXME do we keep this?
+    int min_angle;
 
-    const char *name;
+    char name[56];
 
     double kp;
     double kd;

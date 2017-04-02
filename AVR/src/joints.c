@@ -1,17 +1,30 @@
 #include <stdlib.h>
 #include <Arduino.h>
+#include "util.h"
 #include "joints.h"
 #include "rosnode.h"
 
 
 void joint_set_pwm_forward(struct joint_info *joint)
 {
-    joint->active_pwm_pin = joint->pwm_pins[0];
+    if (joint->active_pwm_pin == joint->pwm_pins[1]) {
+        // shut down reverse PWM signal
+        analogWrite(joint->active_pwm_pin, 0);
+        joint->active_pwm_pin = joint->pwm_pins[0];
+    }
+
+    // else do nothing
 }
 
 void joint_set_pwm_reverse(struct joint_info *joint)
 {
-    joint->active_pwm_pin = joint->pwm_pins[1];
+    if (joint->active_pwm_pin == joint->pwm_pins[0]) {
+        // shut down forward PWM signal
+        analogWrite(joint->active_pwm_pin, 0);
+        joint->active_pwm_pin = joint->pwm_pins[1];
+    }
+
+    // else do nothing
 }
 
 
@@ -22,31 +35,41 @@ void joint_set_pwm_reverse(struct joint_info *joint)
 #define DEFAULT_KI 100
 #define DEFAULT_KD 0.01
 
-void set_elbow_joint_info(struct joint_info *joint)
+static void set_elbow_joint_info(struct joint_info *joint)
 {
-    joint->pwm_pins[0] = 5;
-    joint->pwm_pins[1] = 6;
-    joint->pot = A0;
-    joint->min_pos = 430;
-    joint->max_pos = 855;
-    joint->name = "elbow";
+    joint->pwm_pins[0] = 8;
+    joint->pwm_pins[1] = 9;
+    joint->pot = A3;
+    joint->min_pos = 170;
+    joint->max_pos = 570;
+    strcpy(joint->name, "elbow");
 
-    joint->default_position = 600;
+    joint->default_position = 400;
 }
 
-void set_shoulder_rotate_joint_info(struct joint_info *joint)
+// shoulder joint #3
+static void set_shoulder_rotate_joint_info(struct joint_info *joint)
 {
-    //joint->pwm_pins[0]
-    joint->min_pos = 30;
-    joint->max_pos = 885;
+    joint->pwm_pins[0] = 12;
+    joint->pwm_pins[1] = 13;
+    joint->pot = A0;
+    joint->min_pos = 250; // around 180 deg of rotation
+    joint->max_pos = 950;
+    strcpy(joint->name, "shoulder_rotate");
 
     joint->default_position = 500;
 }
 
-void set_shoulder_vertical_joint_info(struct joint_info *joint)
+
+// shoulder joint #2
+static void set_shoulder_vertical_joint_info(struct joint_info *joint)
 {
-    joint->min_pos = 150;
-    joint->max_pos = 700;
+    joint->pwm_pins[0] = 10;
+    joint->pwm_pins[1] = 11;
+    joint->pot = A1;
+    joint->min_pos = 40;
+    joint->max_pos = 655; // around 180 deg of rotation
+    strcpy(joint->name, "shoulder_vertical");
 
     joint->default_position = 425;
 }
@@ -68,7 +91,9 @@ void get_joint_info(struct joint_info *joints)
     }
 
     // joint definitions -- MUST MATCH NUM_OF_JOINTS
+    //set_shoulder_rotate_joint_info(&joints[0]);
     set_elbow_joint_info(&joints[0]);
+    set_shoulder_vertical_joint_info(&joints[1]);
 
 
     // set all active pins to FORWARD

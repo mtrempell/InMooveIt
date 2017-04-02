@@ -49,6 +49,8 @@ void limit_requested_positions(int16_t *requested_positions,
             node_log_info("limiting max position to %d for joint '%s'",
                           joints[i].max_pos, joints[i].name);
         } else if (requested_positions[i] < joints[i].min_pos) {
+            node_log_info("limiting min position to %d for joint '%s'",
+                          joints[i].min_pos, joints[i].name);
             requested_positions[i] = joints[i].min_pos;
         }
     }
@@ -61,12 +63,11 @@ void run_pid(int16_t *requested_positions, const int16_t *current_positions,
     limit_requested_positions(requested_positions, joints, num_joints);
 
     int16_t position_err;
-    double motor_speed;
+    int motor_speed;
     for (size_t i = 0; i < num_joints; ++i) {
 
         position_err = abs(requested_positions[i] - current_positions[i]);
-        node_log_info("position err: %d", position_err);
-        analogWrite(joints[i].active_pwm_pin, 0); // shut down current PWM signal
+        node_log_info("err = %d (joint %s)", position_err, joints[i].name);
         if (current_positions[i] > requested_positions[i]) {
             joint_set_pwm_reverse(&joints[i]);
         } else {
@@ -76,10 +77,23 @@ void run_pid(int16_t *requested_positions, const int16_t *current_positions,
         if (position_err > ERROR_LEEWAY) {
             motor_speed = update_pid(&pid_states[i], position_err,
                                      current_positions[i]);
+            node_log_info("motor speed = %d (joint %s)", motor_speed, joints[i].name);
             if (motor_speed > MAX_PWM_VAL) motor_speed = MAX_PWM_VAL;
+            if (motor_speed <= 0) motor_speed = 0;
             analogWrite(joints[i].active_pwm_pin, motor_speed);
         }
 
+    }
+}
+
+// FIXME
+void map_potval_to_fullscale(int16_t *positions, struct joint_info *joints)
+{
+    int16_t old; 
+    for (size_t i = 0; i < NUM_OF_JOINTS; ++i) {
+        old = positions[i];
+        positions[i] = map(positions[i], joints[i].min_pos + 10, joints[i].max_pos + 10,
+                           ANALOG_READ_MIN, ANALOG_READ_MAX);
     }
 }
 
@@ -101,10 +115,10 @@ int main(void)
     int16_t *requested_positions;
     while (1) {
         read_pots(current_positions, joints, NUM_OF_JOINTS);
+        //map_potval_to_fullscale(current_positions, joints);
         node_publish_data(current_positions);
 
         if (!received_initial_positions()) continue;
-        node_log_info("we good");
         requested_positions = node_get_requested_positions();
         run_pid(requested_positions, current_positions, pid_states, joints,
                 NUM_OF_JOINTS);
