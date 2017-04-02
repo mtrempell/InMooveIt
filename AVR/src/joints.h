@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define NUM_OF_JOINTS 2
+#define NUM_OF_JOINTS 4
 
 struct joint_info {
     int pwm_pins[2]; // forward pin == pwm_pins[0], reverse == pwm_pins[1]

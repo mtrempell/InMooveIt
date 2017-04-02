@@ -62,13 +62,25 @@ static void set_shoulder_rotate_joint_info(struct joint_info *joint)
 
 
 // shoulder joint #2
-static void set_shoulder_vertical_joint_info(struct joint_info *joint)
+static void set_shoulder_horizontal_joint_info(struct joint_info *joint)
 {
     joint->pwm_pins[0] = 10;
     joint->pwm_pins[1] = 11;
     joint->pot = A1;
     joint->min_pos = 40;
     joint->max_pos = 655; // around 180 deg of rotation
+    strcpy(joint->name, "shoulder_horizontal");
+
+    joint->default_position = 425;
+}
+
+static void set_shoulder_vertical_joint_info(struct joint_info *joint)
+{
+    joint->pwm_pins[0] = 3;
+    joint->pwm_pins[1] = 4;
+    joint->pot = A2;
+    joint->min_pos = 660;
+    joint->max_pos = 780; // around 180 deg of rotation
     strcpy(joint->name, "shoulder_vertical");
 
     joint->default_position = 425;
@@ -91,9 +103,10 @@ void get_joint_info(struct joint_info *joints)
     }
 
     // joint definitions -- MUST MATCH NUM_OF_JOINTS
-    //set_shoulder_rotate_joint_info(&joints[0]);
-    set_elbow_joint_info(&joints[0]);
-    set_shoulder_vertical_joint_info(&joints[1]);
+    set_shoulder_vertical_joint_info(&joints[0]);
+    set_elbow_joint_info(&joints[1]);
+    set_shoulder_horizontal_joint_info(&joints[2]);
+    set_shoulder_rotate_joint_info(&joints[3]);
 
 
     // set all active pins to FORWARD
