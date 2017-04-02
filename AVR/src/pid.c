@@ -42,5 +42,5 @@ double update_pid(pid_state_t *spid, int32_t err, int32_t position)
 
     int total = pterm + iterm + dterm;
     node_log_info("total = %d", total);
-    return pterm + iterm + dterm_int;
+    return pterm_int + iterm_int + dterm_int;
 }
