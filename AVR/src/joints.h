@@ -17,6 +17,8 @@ struct joint_info {
     int max_angle; // FIXME do we keep this?
     int min_angle;
 
+    int phase_pin;
+
     char name[56];
 
     double kp;

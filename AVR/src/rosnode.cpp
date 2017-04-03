@@ -19,6 +19,7 @@ static void requested_position_cb(const std_msgs::Int16MultiArray& array)
     initial_positions_received = true;
     for(size_t i = 0; i < array.data_length && i < NUM_OF_JOINTS; ++i) {
         positions[i] = array.data[i];
+        node_log_info("cb: received %d", array.data[i]);
     }
 }
 

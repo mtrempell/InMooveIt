@@ -66,6 +66,7 @@ void run_pid(int16_t *requested_positions, const int16_t *current_positions,
     int motor_speed;
     for (size_t i = 0; i < num_joints; ++i) {
 
+        node_log_info("requested = %d, current = %d", requested_positions[i], current_positions[i]);
         position_err = abs(requested_positions[i] - current_positions[i]);
         node_log_info("err = %d (joint %s)", position_err, joints[i].name);
         if (current_positions[i] > requested_positions[i]) {
@@ -77,9 +78,9 @@ void run_pid(int16_t *requested_positions, const int16_t *current_positions,
         if (position_err > ERROR_LEEWAY) {
             motor_speed = update_pid(&pid_states[i], position_err,
                                      current_positions[i]);
-            node_log_info("motor speed = %d (joint %s)", motor_speed, joints[i].name);
             if (motor_speed > MAX_PWM_VAL) motor_speed = MAX_PWM_VAL;
             if (motor_speed <= 0) motor_speed = 0;
+            node_log_info("motor speed = %d (joint %s, pin %d)", motor_speed, joints[i].name, joints[i].active_pwm_pin);
             analogWrite(joints[i].active_pwm_pin, motor_speed);
         }
 
